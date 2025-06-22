@@ -1,4 +1,5 @@
 import AdventOfCode
 
-def main : IO Unit :=
-  IO.println "Hello!"
+
+def main (args : List String) : IO Unit := do
+  process args []
