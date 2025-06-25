@@ -1,0 +1,31 @@
+{
+    "Day Template": {
+        "scope": "lean4",
+        "prefix": "aoc",
+        "body": [
+            "namespace Year${1:Year}.Day${2:Day}",
+            "",
+            "",
+            "def parse (input : String) : String :=",
+            "  input",
+            "",
+            "",
+            "def part₁ (input : String) : Int :=",
+            "  0",
+            "",
+            "",
+            "def part₂ (input : String) : Int :=",
+            "  0",
+            "",
+            "",
+            "def test : String := r\"",
+            "$0",
+            "\".trimLeft",
+            "",
+            "#eval part₁ test -- 0",
+            "#eval part₂ test -- 0",
+            "",
+        ],
+        "description": "Advent of Code day template"
+    }
+}
