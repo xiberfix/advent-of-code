@@ -1,3 +1,5 @@
+import Std.Data.HashMap
+
 namespace Year2024.Day01
 
 
@@ -15,7 +17,10 @@ def part₁ (input : String) : Int :=
 
 
 def part₂ (input : String) : Int :=
-  0
+  let (ls, rs) := parse input |>.unzip
+  let counts : Std.HashMap Int Nat := rs.foldl (init := ∅)
+    (fun acc x => acc.alter x (fun v => some (1 + v.getD 0)))
+  ls.map (fun x => x * counts.getD x 0) |>.sum
 
 
 def test : String := r"
@@ -28,4 +33,4 @@ def test : String := r"
 ".trimLeft
 
 #eval part₁ test -- 11
-#eval part₂ test -- 0
+#eval part₂ test -- 31
