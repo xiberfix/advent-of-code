@@ -7,20 +7,29 @@ def parse (input : String) : List (List Int) :=
     |>.map (fun line => line |>.splitOn " " |>.map (·.toInt!))
 
 
+def check₁ report :=
+  let deltas := List.zipWith (· - ·) report (report.tail)
+  let dec := deltas.all (fun d => 1 <= d && d <= 3)
+  let inc := deltas.all (fun d => -3 <= d && d <= -1)
+  dec || inc
+
 def part₁ (input : String) : Int :=
   parse input
-    |>.filter check
+    |>.filter check₁
     |>.length
-  where
-    check report :=
-      let deltas := List.zipWith (· - ·) report (report.tail)
-      let dec := deltas.all (fun d => 1 <= d && d <= 3)
-      let inc := deltas.all (fun d => -3 <= d && d <= -1)
-      dec || inc
 
+
+def slices (xs : List α) : List (List α) :=
+  match xs with
+  | [] => []
+  | x :: xs => xs :: (slices xs).map (x :: ·)
+
+def check₂ report := (slices report).any check₁
 
 def part₂ (input : String) : Int :=
-  0
+  parse input
+    |>.filter check₂
+    |>.length
 
 
 def test : String := r"
@@ -33,4 +42,4 @@ def test : String := r"
 ".trimLeft
 
 #eval part₁ test -- 2
-#eval part₂ test -- 0
+#eval part₂ test -- 4
