@@ -1,5 +1,15 @@
 {"version": "1.1.0",
  "packagesDir": ".lake/packages",
- "packages": [],
+ "packages":
+ [{"url": "https://github.com/pandaman64/lean-regex.git",
+   "type": "git",
+   "subDir": "regex",
+   "scope": "",
+   "rev": "a78f86844b4878421b0b9181c095f449f61c0720",
+   "name": "Regex",
+   "manifestFile": "lake-manifest.json",
+   "inputRev": "v4.20.0",
+   "inherited": false,
+   "configFile": "lakefile.toml"}],
  "name": "«advent-of-code»",
  "lakeDir": ".lake"}

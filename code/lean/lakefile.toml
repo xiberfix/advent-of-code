@@ -8,3 +8,9 @@ name = "AdventOfCode"
 [[lean_exe]]
 name = "advent-of-code"
 root = "Main"
+
+[[require]]
+name = "Regex"
+git = "https://github.com/pandaman64/lean-regex.git"
+rev = "v4.20.0"
+subDir = "regex"
