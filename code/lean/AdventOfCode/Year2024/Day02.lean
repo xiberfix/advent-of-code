@@ -2,16 +2,15 @@ namespace Year2024.Day02
 
 
 def parse (input : String) : List (List Int) :=
-  input.trim
-    |>.splitOn "\n"
-    |>.map (fun line => line |>.splitOn " " |>.map (·.toInt!))
+  input.trim.splitOn "\n"
+    |>.map (·.splitOn " ")
+    |>.map (· |>.map (·.toInt!))
 
 
-def check₁ report :=
-  let deltas := List.zipWith (· - ·) report (report.tail)
-  let dec := deltas.all (fun d => 1 <= d && d <= 3)
-  let inc := deltas.all (fun d => -3 <= d && d <= -1)
-  dec || inc
+def check₁ (report : List Int) : Bool := check report || check report.reverse
+  where
+    check levels := List.zipWith (· - ·) levels (levels.tail) |>.all safe
+    safe d := d == 1 || d == 2 || d == 3
 
 def part₁ (input : String) : Int :=
   parse input
@@ -24,7 +23,7 @@ def slices (xs : List α) : List (List α) :=
   | [] => []
   | x :: xs => xs :: (slices xs).map (x :: ·)
 
-def check₂ report := (slices report).any check₁
+def check₂ (report : List Int) : Bool := (slices report).any check₁
 
 def part₂ (input : String) : Int :=
   parse input
