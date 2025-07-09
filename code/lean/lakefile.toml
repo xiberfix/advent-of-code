@@ -10,6 +10,11 @@ name = "advent-of-code"
 root = "Main"
 
 [[require]]
+name = "batteries"
+git = "https://github.com/leanprover-community/batteries.git"
+rev = "v4.20.0"
+
+[[require]]
 name = "Regex"
 git = "https://github.com/pandaman64/lean-regex.git"
 rev = "v4.20.0"
