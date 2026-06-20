@@ -7,10 +7,7 @@ structure Solver where
   run : IO Unit
 
 
-def solver [ToString α] [ToString β]
-    (year : Nat) (day : Nat)
-    (part₁ : String → α) (part₂ : String → β) :
-    Solver :=
+def solver [ToString α] [ToString β] (year : Nat) (day : Nat) (part₁ : String → α) (part₂ : String → β) : Solver :=
   {year, day, run}
   where
     run := do
