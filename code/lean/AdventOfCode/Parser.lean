@@ -1,3 +1,5 @@
+import Lean
+
 namespace Parser
 
 
@@ -49,7 +51,6 @@ def satisfy (p : Char → Bool) : Parser Char := fun s =>
   | none => none
   | some (c, s') => if p c then some (c, s') else none
 
--- TODO: return `Unit` for `char` and `string`
 
 def char (lit : Char) : Parser Char :=
   satisfy (· == lit)
@@ -90,6 +91,8 @@ def int : Parser Int := do
 def optional (p : Parser α) : Parser (Option α) :=
   (some <$> p) <|> pure none
 
+-- TODO: `choice`
+
 
 partial def foldl (p : Parser α) (f : β → α → β) (init : β) : Parser β :=
   let rec loop (acc : β) := do
@@ -112,3 +115,58 @@ def sepBy (p : Parser α) (sep : Parser β) : Parser (Array α) := orEmpty (sepB
 
 def endBy1 (p : Parser α) (sep : Parser β) : Parser (Array α) := array (p <* sep) (p <* sep)
 def endBy (p : Parser α) (sep : Parser β) : Parser (Array α) := orEmpty (endBy1 p sep)
+
+
+-- TODO: `linesOf`
+-- TODO: `blocksOf`
+
+
+namespace Template
+
+-- template parser
+-- p!"v={int},{int}" : Parser (Int × Int)
+
+open Lean Elab Term Macro
+
+private def trim (lit : String) (first last : Bool) : String :=
+  let lit := if first then lit.dropWhile '\n' else lit
+  let lit := if last then lit.dropEndWhile '\n' else lit
+  lit.toString
+
+private def fixed (lit : String) : Parser Unit := fun s =>
+  match s.dropPrefix? lit with
+  | none => none
+  | some s' => some ((), s')
+
+private def combine (ts : Array (TSyntax `term)) : MacroM (TSyntax `term) :=
+  match ts with
+  | #[]  => `(())
+  | #[x] => `($x)
+  | _    => `(($(ts[0]!),$(ts[1:]),*))
+
+private def expand (template : TSyntax `interpolatedStrKind) : MacroM (TSyntax `term) := do
+  let mut statements : Array (TSyntax `doElem) := #[]
+  let mut captures : Array (TSyntax `ident) := #[]
+  let args := template.raw.getArgs
+  for (arg, i) in args.zipIdx do
+    if let some lit := arg.isInterpolatedStrLit? then
+      let lit := trim lit (i == 0) (i == args.size - 1)
+      unless lit.isEmpty do
+        let statement ← `(doElem| fixed $(quote lit))
+        statements := statements.push statement
+    else
+      let capture ← mkFreshIdent arg
+      captures := captures.push capture
+      let statement ← `(doElem| let $capture:ident ← $(⟨arg⟩):term)
+      statements := statements.push statement
+  let result ← `(doElem| pure $(← combine captures))
+  statements := statements.push result
+  `(do $[$statements:doElem]*)
+
+
+syntax:max (name := pTemplate) "p!" interpolatedStr(term) : term
+
+macro_rules
+  | `(p!$s:interpolatedStr) => expand s
+
+end Template
