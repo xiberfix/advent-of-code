@@ -1,21 +1,20 @@
 import Lean
 
-namespace Parser
-
 
 def Parser (α : Type) := String.Slice → Option (α × String.Slice)
 
 
+namespace Parser
+
 -- TODO: error message
 -- TODO: position tracking
--- TODO: treat no `eos` as error
 
-def Parser.run (p : Parser α) (s : String) : Option α :=
+def run (p : Parser α) (s : String) : Option α :=
   match p s with
   | none => none
   | some (a, _) => some a
 
-def Parser.run! [Inhabited α] (p : Parser α) (s : String) : α :=
+def run! [Inhabited α] (p : Parser α) (s : String) : α :=
   p.run s |>.get!
 
 
@@ -63,6 +62,9 @@ def string (lit : String) : Parser String.Slice := fun s =>
 def eos : Parser Unit := fun s =>
   if s.isEmpty then some ((), s) else none
 
+def eol : Parser Unit :=
+  char '\n' *> pure ()
+
 -- TODO: implement `span` as `takeWhile` and `dropWhile`
 
 def takeChars1 (p : Char → Bool) : Parser String.Slice := fun s =>
@@ -91,7 +93,8 @@ def int : Parser Int := do
 def optional (p : Parser α) : Parser (Option α) :=
   (some <$> p) <|> pure none
 
--- TODO: `choice`
+def choice (ps : List (Parser α)) : Parser α :=
+  ps.foldr (· <|> ·) failure
 
 
 partial def foldl (p : Parser α) (f : β → α → β) (init : β) : Parser β :=
@@ -117,8 +120,11 @@ def endBy1 (p : Parser α) (sep : Parser β) : Parser (Array α) := array (p <* 
 def endBy (p : Parser α) (sep : Parser β) : Parser (Array α) := orEmpty (endBy1 p sep)
 
 
--- TODO: `linesOf`
--- TODO: `blocksOf`
+def linesOf (p : Parser α) : Parser (Array α) :=
+  sepBy1 p eol
+
+def blocksOf (p : Parser α) : Parser (Array α) :=
+  sepBy1 p (eol *> eol)
 
 
 namespace Template
@@ -170,3 +176,16 @@ macro_rules
   | `(p!$s:interpolatedStr) => expand s
 
 end Template
+
+
+end Parser
+
+
+export Parser (
+  satisfy char string eos eol nat int
+  many1 many sepBy1 sepBy endBy1 endBy linesOf blocksOf
+)
+
+
+def String.parse [Inhabited α] (input : String) (p : Parser α) : α :=
+  (many eol *> p <* many eol <* eos).run! input
