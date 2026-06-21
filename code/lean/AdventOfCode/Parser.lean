@@ -110,14 +110,28 @@ def orEmpty (p : Parser (Array α)) : Parser (Array α) :=
 def array (init step : Parser α) : Parser (Array α) := do
   foldl step Array.push #[←init]
 
+
+class ToSep (σ : Type) where
+  toSep : σ → Parser Unit
+
+export ToSep (toSep)
+
+instance : ToSep (Parser α) where
+  toSep p := p *> pure ()
+instance : ToSep Char where
+  toSep c := char c *> pure ()
+instance : ToSep String where
+  toSep s := string s *> pure ()
+
+
 def many1 (p : Parser α) : Parser (Array α) := array p p
 def many (p : Parser α) : Parser (Array α) := orEmpty (many1 p)
 
-def sepBy1 (p : Parser α) (sep : Parser β) : Parser (Array α) := array p (sep *> p)
-def sepBy (p : Parser α) (sep : Parser β) : Parser (Array α) := orEmpty (sepBy1 p sep)
+def sepBy1 [ToSep σ] (p : Parser α) (sep : σ) : Parser (Array α) := array p (toSep sep *> p)
+def sepBy [ToSep σ] (p : Parser α) (sep : σ) : Parser (Array α) := orEmpty (sepBy1 p sep)
 
-def endBy1 (p : Parser α) (sep : Parser β) : Parser (Array α) := array (p <* sep) (p <* sep)
-def endBy (p : Parser α) (sep : Parser β) : Parser (Array α) := orEmpty (endBy1 p sep)
+def endBy1 [ToSep σ] (p : Parser α) (sep : σ) : Parser (Array α) := array (p <* toSep sep) (p <* toSep sep)
+def endBy [ToSep σ] (p : Parser α) (sep : σ) : Parser (Array α) := orEmpty (endBy1 p sep)
 
 
 def linesOf (p : Parser α) : Parser (Array α) :=
