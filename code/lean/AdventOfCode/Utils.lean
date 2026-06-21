@@ -43,3 +43,19 @@ def Std.Iter.counts [Iterator α Id β] [IteratorLoop α Id Id] [BEq β] [Hashab
     (it : Iter (α := α) β) : HashMap β Nat :=
   let bump c := some (c.getD 0 + 1)
   it.fold (init := {}) (fun acc k => acc.alter k bump)
+
+
+class Abs (α : Type) where
+  abs : α → α
+
+export Abs (abs)
+
+instance : Abs Nat where
+  abs x := x
+instance : Abs Int where
+  abs x := if x < 0 then -x else x
+instance : Abs Float where
+  abs x := Float.abs x
+
+def dist [Sub α] [Abs α] (x y : α) : α :=
+  abs (x - y)

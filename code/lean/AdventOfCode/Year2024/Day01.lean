@@ -8,8 +8,7 @@ def parser := linesOf p!"{int}   {int}"
 
 def part₁ (input : String) : Int :=
   let (ls, rs) := input.parse parser |>.unzip
-  let dist := fun (x, y) => (x - y).natAbs
-  ls.qsort.iter.zip rs.qsort.iter |>.map dist |>.sum
+  ls.qsort.iter.zip rs.qsort.iter |>.map (fun (l, r) => dist l r) |>.sum
 
 
 def part₂ (input : String) : Int :=
