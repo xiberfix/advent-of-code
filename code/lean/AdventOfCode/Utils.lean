@@ -44,6 +44,19 @@ def Std.Iter.counts [Iterator α Id β] [IteratorLoop α Id Id] [BEq β] [Hashab
   let bump c := some (c.getD 0 + 1)
   it.fold (init := {}) (fun acc k => acc.alter k bump)
 
+def Std.Iter.findIdx? [Iterator α Id β] [IteratorLoop α Id Id]
+    (it : Iter (α := α) β) (p : β → Bool) : Option Nat := Id.run do
+  let mut idx := 0
+  for x in it do
+    if p x then
+      return some idx
+    idx := idx + 1
+  return none
+
+def Std.Iter.zipNext [Iterator α Id β]
+    (it : Iter (α := α) β) :=
+  it.zip (it.drop 1)
+
 
 class Abs (α : Type) where
   abs : α → α
