@@ -13,9 +13,3 @@ root = "Main"
 name = "batteries"
 git = "https://github.com/leanprover-community/batteries"
 rev = "v4.29.0"
-
-[[require]]
-name = "Regex"
-git = "https://github.com/pandaman64/lean-regex"
-rev = "v4.29.0"
-subDir = "regex"
