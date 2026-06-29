@@ -50,6 +50,8 @@ def satisfy (p : Char → Bool) : Parser Char := fun s =>
   | none => none
   | some (c, s') => if p c then some (c, s') else none
 
+def anyChar : Parser Char :=
+  satisfy fun _ => true
 
 def char (lit : Char) : Parser Char :=
   satisfy (· == lit)
@@ -196,8 +198,10 @@ end Parser
 
 
 export Parser (
-  satisfy char string eos eol nat int
-  many1 many sepBy1 sepBy endBy1 endBy linesOf blocksOf
+  satisfy char anyChar string eos eol nat int
+  optional choice
+  many1 many sepBy1 sepBy endBy1 endBy
+  linesOf blocksOf
 )
 
 
